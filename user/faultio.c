@@ -16,7 +16,11 @@ umain(int argc, char **argv)
 
 	// this outb to select disk 1 should result in a general protection
 	// fault, because user-level code shouldn't be able to use the io space.
+	int eflags = read_eflags();
+	cprintf("%d\n",eflags);
+
 	outb(0x1F6, 0xE0 | (1<<4));
 
         cprintf("%s: made it here --- bug\n");
+
 }

@@ -119,7 +119,7 @@ trap_init(void)
 	SETGATE(idt[T_TSS], 0, GD_KT, invalid_tss, 0);
 	SETGATE(idt[T_SEGNP], 0, GD_KT, segment_not_present, 0);
 	SETGATE(idt[T_STACK], 0, GD_KT, stack_fault, 0);
-	SETGATE(idt[T_GPFLT], 0, GD_KT, general_protection, 0);
+	SETGATE(idt[T_GPFLT], 0, GD_KT, general_protection, 3);
 	SETGATE(idt[T_PGFLT], 0, GD_KT, page_fault, 0);
 	SETGATE(idt[T_FPERR], 0, GD_KT, x87_fpu_floating_point_error, 0);
 	SETGATE(idt[T_ALIGN], 0, GD_KT, alignment_check, 0);
@@ -243,6 +243,14 @@ trap_dispatch(struct Trapframe *tf)
 			tf->tf_regs.reg_ecx, tf->tf_regs.reg_ebx, 
 			tf->tf_regs.reg_edi, tf->tf_regs.reg_esi);
 		tf->tf_regs.reg_eax = r;
+		return;
+	}
+	if(tf->tf_trapno == IRQ_OFFSET+IRQ_KBD){
+		kbd_intr();
+		return;
+	}
+	if(tf->tf_trapno == IRQ_OFFSET+IRQ_SERIAL){
+		serial_intr();
 		return;
 	}
 

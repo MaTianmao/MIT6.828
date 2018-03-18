@@ -209,12 +209,19 @@ serve_read(envid_t envid, union Fsipc *ipc)
 {
 	struct Fsreq_read *req = &ipc->read;
 	struct Fsret_read *ret = &ipc->readRet;
-
+	struct OpenFile *o;
+	int r;
 	if (debug)
 		cprintf("serve_read %08x %08x %08x\n", envid, req->req_fileid, req->req_n);
 
 	// Lab 5: Your code here:
-	return 0;
+	if((r = openfile_lookup(envid, req->req_fileid, &o)) < 0)
+		return r;
+	int req_n = req->req_n > PGSIZE ? PGSIZE : req->req_n;
+	int res = file_read(o->o_file, ret->ret_buf, req_n, o->o_fd->fd_offset);
+	if(res < 0) return res;
+	o->o_fd->fd_offset += res;
+	return res;
 }
 
 
@@ -225,11 +232,22 @@ serve_read(envid_t envid, union Fsipc *ipc)
 int
 serve_write(envid_t envid, struct Fsreq_write *req)
 {
+
 	if (debug)
 		cprintf("serve_write %08x %08x %08x\n", envid, req->req_fileid, req->req_n);
 
 	// LAB 5: Your code here.
-	panic("serve_write not implemented");
+	struct OpenFile *o;
+	int r;
+
+	if((r = openfile_lookup(envid, req->req_fileid, &o)) < 0)
+		return r;
+	int req_n = req->req_n > PGSIZE ? PGSIZE : req->req_n;
+	int res = file_write(o->o_file, req->req_buf, req_n, o->o_fd->fd_offset);
+	if(res < 0) return res;
+	o->o_fd->fd_offset += res;
+	return res;
+	//panic("serve_write not implemented");
 }
 
 // Stat ipc->stat.req_fileid.  Return the file's struct Stat to the

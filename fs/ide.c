@@ -24,7 +24,7 @@ ide_wait_ready(bool check_error)
 
 	if (check_error && (r & (IDE_DF|IDE_ERR)) != 0)
 		return -1;
-	return 0;
+	return 0;r 
 }
 
 bool
@@ -106,7 +106,7 @@ ide_write(uint32_t secno, const void *src, size_t nsecs)
 			return r;
 		outsl(0x1F0, src, SECTSIZE/4);
 	}
-
+	
 	return 0;
 }
 
